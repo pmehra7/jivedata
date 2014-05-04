@@ -1,8 +1,7 @@
 JiveData
 ==============
 
-This package consists of the webapp that powers www.jivedata.com,
-our email alerts & twitter notifications. It is BSD licensed. Enjoy!
+The code that powers www.jivedata.com, our email alerts, and twitter notifications.
 
 Installation
 ------------
