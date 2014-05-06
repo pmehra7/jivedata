@@ -11,7 +11,8 @@ def filings(cik):
     """Filings list view"""
     if cik is None and 'ticker' in session and session['ticker'] != {}:
         cik = session['ticker']['cik']
-        return redirect('/filings/' + str(cik) + '/')
+        if not request.is_xhr:
+            return redirect('/filings/' + str(cik) + '/')
 
     if cik is not None:
         store_cik(cik)

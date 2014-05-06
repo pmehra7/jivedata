@@ -13,7 +13,8 @@ def insiders(cik):
     latest insider filings for a specific company"""
     if cik is None and 'ticker' in session and session['ticker'] != {}:
         cik = session['ticker']['cik']
-        return redirect('/insiders/' + str(cik) + '/')
+        if not request.is_xhr:
+            return redirect('/insiders/' + str(cik) + '/')
 
     if cik is not None:
         store_cik(cik)
