@@ -44,7 +44,7 @@ setup(
     include_package_data=True,
     platforms='any',
     version=version,
-    description='The code that powers www.jivedata.com, our email alerts,'
+    description='The code that powers www.jivedata.com, our email alerts, '
                 'and twitter notifications',
     long_description=__doc__,
     license='BSD',
