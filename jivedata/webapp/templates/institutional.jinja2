@@ -40,7 +40,6 @@
 {% block additionalTicker %}{% endblock %}
 
 {% block content %}
-<div id="span_me">
 	{% if not detail %}
 	  {% if results == [] %}
 	  <h4>No Results</h4>
@@ -71,7 +70,5 @@
 	 {% else %}
 	    {{ html | safe }}
 	{% endif %}
-
-</div>
 
 {% endblock %}

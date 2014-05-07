@@ -47,23 +47,21 @@
 {% endblock %}
 
 {% block content %}
-<div id="span_me">
-	<table id="datagrid" class="table table-hover"> 
-	  <thead>
-	   <tr>
-	     <th>{% if session['ticker'] == {} -%}Company & Insider</small>{% else %}Insider{%- endif %}</th>
-	   	 <th>Summary</th>
-	   	 <th>Links</th>
-	   </tr>
-	  </thead>
-	  <tbody>
- 	  {{ html | safe }}
- 	  {% if pagination['next']  ==  None  %}
-    <tr style="height:50px;border-bottom:0px;"><td colspan="3" style="text-align:center">No More Records</td></tr>
-    {% endif %}
-		</tbody>
-	</table>
-</div>
+<table id="datagrid" class="table table-hover"> 
+  <thead>
+   <tr>
+     <th>{% if session['ticker'] == {} -%}Company & Insider</small>{% else %}Insider{%- endif %}</th>
+   	 <th>Summary</th>
+   	 <th>Links</th>
+   </tr>
+  </thead>
+  <tbody>
+	  {{ html | safe }}
+	  {% if pagination['next']  ==  None  %}
+   <tr style="height:50px;border-bottom:0px;"><td colspan="3" style="text-align:center">No More Records</td></tr>
+   {% endif %}
+	</tbody>
+</table>
 
 <div id="current" style="display:none;">{{ pagination['current'] }}</div>
 <div id="next" style="display:none;">{{ pagination['next'] }}</div>
