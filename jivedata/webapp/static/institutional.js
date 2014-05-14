@@ -1,15 +1,21 @@
 var current;
 var next;
 
-$(document).ready(function () { 
+$(document).ready(function(){ 
 	$("#options_row").show();
-	$('#collapseOne').collapse('show');
 	current = $("#current").text();
 	next = $("#next").text();
 	$(window).bind('scroll', loadOnScroll);
 	$("#my_funds_view").change(function(){
-		update_settings({'my_funds_view': $('#my_funds_view').is(':checked') }, base_path);
+		update_settings({'my_funds_view': $('#my_funds_view').is(':checked')}, base_path);
 	});
+	
+    $('#datagrid_detail').DataTable({
+      paging: false,
+      fnInfoCallback: function(oSettings, iStart, iEnd, iMax, iTotal, sPre){
+		    return iTotal + ' Rows';
+		  }
+    });
 });
 
 var loadOnScroll = function(){	

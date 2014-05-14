@@ -3,14 +3,12 @@ var next;
 
 $(document).ready(function(){
 	$("#options_row").show();
-    $('#collapseOne').collapse('show');
-    
 	current = $("#current").text();
 	next = $("#next").text();
 	
 	$(window).bind('scroll', loadOnScroll);
 	
-	if($('#forms_selector option:selected').val() != 0) {
+	if($('#forms_selector option:selected').val() != 0){
 		$("#insider_span").hide();
 	}
 	$('#watchlist_view').click(function(){

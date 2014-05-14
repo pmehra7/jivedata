@@ -3,10 +3,16 @@ var next;
 
 $(document).ready(function(){
   $("#options_row").show();
-  $('#collapseOne').collapse('show');
   current = $("#current").text();
   next = $("#next").text();
   $(window).bind('scroll', loadOnScroll);
+  $('#datagrid_detail').DataTable({
+	paging: false,
+	'order': [],
+	fnInfoCallback: function(oSettings, iStart, iEnd, iMax, iTotal, sPre){
+	  return (iTotal >= 500) ? 'Data truncated to the most recent ' + iTotal + ' rows' : iTotal + ' Rows';
+	}
+  });
 });
 
 $("#most_viewed").change(function(){

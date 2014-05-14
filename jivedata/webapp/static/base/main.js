@@ -29,9 +29,9 @@ function update_settings(updated_data, url){ // update our session variables
 	var now = new Date();
     var n = now.getTime();
     $.ajax({  
-        url: "/update_settings/?time=" + n,
-        type: "GET",
-        headers: {"cache-control":"no-cache"},
+        url: '/update_settings/?time=' + n,
+        type: 'GET',
+        headers: {'cache-control': 'no-cache'},
         cache: false,
         data: updated_data,
         dataType: 'json'
@@ -45,7 +45,7 @@ function update_settings(updated_data, url){ // update our session variables
 	});		  
 }
 
-function update_user(updated_data){ // update a user's watchlist and/or funds list
+function update_user(updated_data){ // update a user's watchlist, funds, or screens list
 	var now = new Date();
     var n = now.getTime();
     $.ajax({  
@@ -57,6 +57,6 @@ function update_user(updated_data){ // update a user's watchlist and/or funds li
         dataType: 'json'
 	})
 	.done(function(data){ 
-	    location.reload();
+	    //location.reload();
 	});		  
 }

@@ -29,13 +29,13 @@
 <div style="text-align:center;">
   <h4>Please enter a ticker</h4>
 </div>
-{% else %}
+{% elif dates != [] %}
 <div id="financials">
    <table class="table table-hover">
      <thead>
 	    <tr>
 	      <th></th>
-	      {% for date in results['_dates_'] %}
+	      {% for date in dates %}
      	  <th style="text-align: center;">
      	    {% if 'calculated' in date and date['calculated'] == 'LTM' %}{{ date['calculated'] }}
      	    {% else %}{{ date['length'] }} months{% endif %}
@@ -55,6 +55,10 @@
 	    {{ multiples }}
 	  </tbody>
    </table>
+</div>
+{% else %}
+<div style="text-align:center;">
+  <h4>No Data</h4>
 </div>
 {% endif %}
 {% endblock %}

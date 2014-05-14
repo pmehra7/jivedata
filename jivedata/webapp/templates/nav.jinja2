@@ -1,6 +1,6 @@
 {% set navigation_bar = [
  	('/financials/', 'financials', 'Financials'),
-	('/filings/', 'filings', 'Filings'),
+ ('/filings/', 'filings', 'Filings'),
 	('/insiders/', 'ins', 'Insider Filings'),
 	('/13F/', 'institutional', '13F Filings'),
 	('/econ/', 'econ', 'Econ'),
@@ -27,10 +27,14 @@
       <div id="collapsable" class="nav-collapse collapse">
         <ul class="nav">
         {% for href, id, caption in navigation_bar -%}
- 					<li{% if id == active_page %} class="active"{% endif %}><a href="{{ href|e }}">{{ caption|e }}</a></li>
+ 					<li{% if id == active_page %} class="active"{% endif %}>
+ 					  <a href="{{ href|e }}">{{ caption|e }}</a>
+ 					</li>
 				{%- endfor %}
 			  {% for href, id, caption in additional_links -%}
-			  <li><a href="{{ href|e }}" style="color:#5586e0;opacity:.9;">{{ caption|e }}</a></li>
+			  <li{% if id == active_page %} class="active"{% endif %}>
+			    <a href="{{ href|e }}">{{ caption|e }}</a>
+			  </li>
 			  {% endfor %}
         </ul>
         <ul class="nav pull-right" style="margin-right:100px;">

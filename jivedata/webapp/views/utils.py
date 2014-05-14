@@ -1,4 +1,4 @@
-from flask import request, session, jsonify, render_template
+from flask import request, session, jsonify
 from jivedata.webapp import app
 import simplejson as json
 from jivedata.utils import Client
@@ -115,6 +115,11 @@ def update_settings():
 
         if 'series' in request.args:
             session['series'] = request.args.get('series')
+
+        # screener settings
+        if 'screener' in request.args:
+            from screener import save_screen
+            save_screen()
 
         return jsonify(result='success')
     return jsonify(error='Could not update...')

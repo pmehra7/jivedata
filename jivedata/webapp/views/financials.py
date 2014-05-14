@@ -39,33 +39,45 @@ def financials(cik):
 
     response = make_api_request('/financials/detail/', params)
 
-    html = generate_financials_template()
-    financials = html.render(elements=financials,
-                                results=response['_results_'])
-    margins = html.render(elements=margins, results=response['_results_'])
-    ratios = html.render(elements=ratios, results=response['_results_'])
-    multiples = html.render(elements=multiples,
-                               results=response['_results_'])
+    dates = []
+    valid = []
+    # get rid of dates with length of 0
+    for i, date in enumerate(response['_results_']['_dates_']):
+        if 'length' in date and date['length'] != 0:
+            valid.append(i)
+            dates.append(date)
 
-    return render_template('financials.jinja2', detail='true',
+    results = {'_labels_': response['_results_']['_labels_']}
+    for key, values in response['_results_'].iteritems():
+        if key not in ['_dates_', '_labels_']:
+            if '_total_' in values:
+                results[key] = [x for i, x in enumerate(values['_total_']) if
+                                i in valid]
+
+    html = generate_financials_template()
+    financials = html.render(elements=financials, results=results)
+    margins = html.render(elements=margins, results=results)
+    ratios = html.render(elements=ratios, results=results)
+    multiples = html.render(elements=multiples, results=results)
+
+    return render_template('financials.jinja2', detail='true', dates=dates,
                            financials=financials, margins=margins,
-                           ratios=ratios, multiples=multiples,
-                           results=response['_results_'])
+                           ratios=ratios, multiples=multiples)
 
 
 def generate_financials_template():
     h = Template(u'''
     {% for el in elements %}
       {% if el in results %}
-        {% set values_set = results[el]['_total_'] | list_to_set %}
+        {% set values_set = results[el] | list_to_set %}
         {% if values_set != [''] %}
         <tr>
           <td>
             <span style="color:#999;"><small>{{ el }}</small></span>
-            </br>{{ results['_labels_'][el] }}
+            <br>{{ results['_labels_'][el] }}
           </td>
-          {% for value in results[el]['_total_'] %}
-          <td style="text-align:right;">
+          {% for value in results[el] %}
+          <td style="text-align: right;">
             {{ value['formatted'] | format_blanks }}
           </td>
           {% endfor %}

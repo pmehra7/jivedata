@@ -13,7 +13,7 @@ def current_year(*args):
 
 def format_blanks(val):
     """Make blank values apparent to the end-user"""
-    if val == '':
+    if val == '' or val == None:
         val = '--'
     return val
 
@@ -52,7 +52,7 @@ def per_share(num, denominator):
 
 def format_percentage(value):
     try:
-        return "{0:.1f}%".format(float(value) * 100)
+        return "{0:,.1f}%".format(float(value) * 100)
     except:
         return '--'
 
@@ -98,3 +98,4 @@ app.jinja_env.filters['pretty_date'] = pretty_date
 filters.FILTERS['pretty_date_time'] = pretty_date_time
 filters.FILTERS['prior_wording'] = prior_wording
 filters.FILTERS['truncator'] = truncator
+app.jinja_env.filters['truncator'] = truncator

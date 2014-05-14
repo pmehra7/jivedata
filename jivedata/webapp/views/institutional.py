@@ -254,16 +254,16 @@ def institutional_detail_template():
           </div>
         </div>
         <div class="span3">
-          <div>
-            <strong>Most Recent:</strong>
-            &nbsp;{{ periods[-1] | pretty_date }}
-          </div>
           {%- if periods | length > 1 -%}
             <div>
               <strong>Prior Period:</strong>
               &nbsp;{{ periods[0] | pretty_date }}
             </div>
           {%- endif -%}
+          <div>
+            <strong>Most Recent:</strong>
+            &nbsp;{{ periods[-1] | pretty_date }}
+          </div>
         </div>
       </div>
     </div>
@@ -290,7 +290,7 @@ def institutional_detail_template():
       <tbody>
       {% for item in master %}
       <tr>
-        <td style="text-align:left;">
+        <td style="text-align:left;" data-order="{{ item['name']  }}">
           {% if 'putcall' in item -%}
             <small>{{ item['putcall'] }}</small><br>
           {%- endif %}
@@ -302,38 +302,38 @@ def institutional_detail_template():
           {%- endif %}
           {% if 'type' in item and item['type'] == 'SH' and
               'ticker' in item and item['ticker'] != '' -%}
-            <span style="color:#5586E0">
-              <small>{{ item['ticker'] }}</small>
-            </span><br>
+            <small>{{ item['ticker'] }}</small>
+            <br>
           {%- endif %}
           {{ item['name'] }}
         </td>
-        <td style="text-align:right;">
+        <td style="text-align:right;" data-order="{{ item['shares'] }},{{ item['prior_shares'] }}">
           {{ item['shares'] | format_number }}<br>
           <small>{{ item['prior_shares'] | format_number }}</small>
         </td>
         {% if item['action'] in ['New', 'Increased'] -%}
-          <td style="color:green;text-align:right;">{{ item['action'] }}
+          <td style="color:green; text-align:right;" data-order="{{ item['share_change_percent'] }}">{{ item['action'] }}
             {% if item['action'] == 'Increased' -%}
-            <br><small>+{{ item['share_change'] | format_number }}
-            ({{ item['share_change_percent'] | format_percentage}})</small>
+            <br>
+              <small>+{{ item['share_change'] | format_number }}
+              ({{ item['share_change_percent'] | format_percentage}})
+              </small>
             {%- endif %}
           </td>
         {% elif item['action'] in ['Sold All','Decreased'] %}
-          <td style="color:red;text-align:right;">{{ item['action'] }}
+          <td style="color:red; text-align:right;" data-order="{{ item['share_change_percent'] }}">{{ item['action'] }}
           {% if item['action'] == 'Decreased' -%}
             <br>
-            <span>
               <small>{{ item['share_change'] | format_number }}
               ({{ item['share_change_percent'] | format_percentage}})
               </small>
-            </span>
           </td>
           {% endif %}
         {% else %}
-        <td style="text-align:right;">{{ item['action'] }}</td>
+        <td style="text-align:right;" data-order="{{ item['share_change_percent'] }}">{{ item['action'] }}</td>
         {% endif %}
-        <td style="text-align:right;">{{ item['value'] | format_currency }}
+        <td style="text-align:right;" data-order="{{ item['value'] }}">
+          {{ item['value'] | format_currency }}
           {% if 'putcall' in item -%}
             <small>({{ (100*item['value']) | per_share(item['shares']) | format_per_share_currency }}/option)</small>
           {% elif 'type' in item and item['type'] == 'PRN' -%}
@@ -354,57 +354,59 @@ def institutional_detail_template():
         </td>
 
         {% if item['value_change'] > 0 -%}
-        <td style="color:green;text-align:right;">
+        <td style="color:green;text-align:right;" data-order="{{ item['value_change_percent'] }}">
           +{{ item['value_change'] | format_currency}} <small>({{ item['value_change_percent'] | format_percentage }})</small>
         </td>
         {% elif item['value_change'] < 0 -%}
-        <td style="color:red;text-align:right;">
+        <td style="color:red;text-align:right;" data-order="{{ item['value_change_percent'] }}">
           {{ item['value_change'] | format_currency}} <small>({{ item['value_change_percent'] | format_percentage }})</small>
         </td>
         {% else -%}
-        <td style="text-align:right;">
+        <td style="text-align:right;" data-order="{{ item['value_change_percent'] }}">
           {{ item['value_change'] | format_currency}}
         </td>
         {%- endif %}
-        <td style="text-align:right;">
+        <td style="text-align:right;" data-order="{{ item['percent'] }}">
           {{ item['percent'] | format_percentage }}<br>
           <small>{{ item['prior_percent'] | format_percentage }}</small>
         </td>
       </tr>
       {%- endfor %}
-      <tr>
-        <td style="text-align:left;">
-          <strong>Total</strong>
-        </td>
-        <td style="text-align:right;">
-          <strong>--<br><small>--</small></strong>
-        </td>
-        <td style="text-align:right;">
-          <strong>--<br><small>--</small></strong>
-        </td>
-        <td style="text-align:right;">
-          <strong>{{ total_value | format_currency }}<br>
-          <small>{{ previous_total_value | format_currency }}</small>
-          </strong>
-        </td>
-        {% if total_value_change > 0 -%}
-          <td style="color:green;text-align:right;">
-            <strong>+{{ total_value_change | format_currency }} <small>({{ total_value_change_percentage | format_percentage }})</small></strong>
-          </td>
-        {% elif total_value_change < 0 -%}
-          <td style="color:red;text-align:right;">
-            <strong>{{ total_value_change | format_currency }} <small>({{ total_value_change_percentage | format_percentage }})</small></strong>
-          </td>
-        {% else -%}
-          <td style="text-align:right;">
-            <strong>--</strong>
-          </td>
-        {%- endif %}
-          <td style="text-align:right;">
-            <strong>100%<br><small>100%</small></strong>
-          </td>
-      </tr>
       </tbody>
+      <tfoot>
+        <tr>
+          <td style="text-align:left;">
+            <strong>Total</strong>
+          </td>
+          <td style="text-align:right;">
+            <strong>--<br><small>--</small></strong>
+          </td>
+          <td style="text-align:right;">
+            <strong>--<br><small>--</small></strong>
+          </td>
+          <td style="text-align:right;">
+            <strong>{{ total_value | format_currency }}<br>
+            <small>{{ previous_total_value | format_currency }}</small>
+            </strong>
+          </td>
+          {% if total_value_change > 0 -%}
+            <td style="color:green;text-align:right;">
+              <strong>+{{ total_value_change | format_currency }} <small>({{ total_value_change_percentage | format_percentage }})</small></strong>
+            </td>
+          {% elif total_value_change < 0 -%}
+            <td style="color:red;text-align:right;">
+              <strong>{{ total_value_change | format_currency }} <small>({{ total_value_change_percentage | format_percentage }})</small></strong>
+            </td>
+          {% else -%}
+            <td style="text-align:right;">
+              <strong>--</strong>
+            </td>
+          {%- endif %}
+            <td style="text-align:right;">
+              <strong>100%<br><small>100%</small></strong>
+            </td>
+        </tr>
+      </tfoot>
     </table>
     ''')
     return html

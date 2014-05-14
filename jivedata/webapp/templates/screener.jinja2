@@ -1,0 +1,161 @@
+{% extends 'base.jinja2' %}
+{% set active_page = 'screener' %}
+
+{% block titletag -%}
+Stock Screener
+{%- endblock %}
+
+{% block css %}
+<link href="{{ url_for('static', filename='screener.css') }}" rel="stylesheet" type="text/css"/>  
+{% endblock %}
+{% block jquery %}
+<script src="{{ url_for('static', filename='screener.js') }}" type="text/javascript"></script>
+{% endblock %}
+
+{% block ticker %}
+{% set operators = {'lt': '&lt;', 'le': '&le;', 'gt': '&gt;', 'ge': '&ge;', 'eq': '&#61;'} %}
+{% set time_periods = ['1 Quarter Ago', '1 Year Ago', '5 Years Ago'] %}
+{% set all_criteria = session['available_criteria']['ltm'] + session['available_criteria']['mrq'] %}
+<div class="row-fluid">
+  <div class="span6">
+    <h4>Criteria</h4>
+    {% for formula in params['formulas'] %}
+    {% set i = loop.index0 %}
+    <div class="criteria">
+      <p>
+        <select class="formulas" style="width: 250px;">
+          {% for group in ['formulas', 'quotes', 'multiples', 'ratios', 'margins'] %}
+            <optgroup label="{{ group | title }}">
+            {% for item in all_criteria | sort %}
+              {% if item in session['formulas'][group] %}
+              <option value="{{ item }}"{% if item==formula %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </select>
+        
+        <select class="operators" style="width: 60px;">
+          <option value="lt" {% if params['operators'][i] == 'lt' %} selected="selected"{% endif %}>&lt;</option>
+          <option value="le" {% if params['operators'][i] == 'le' %} selected="selected"{% endif %}>&le;</option>
+          <option value="gt" {% if params['operators'][i] == 'gt' %} selected="selected"{% endif %}>&gt;</option>
+          <option value="ge" {% if params['operators'][i] == 'ge' %} selected="selected"{% endif %}>&ge;</option>
+          <option value="eq" {% if params['operators'][i] == 'eq' %} selected="selected"{% endif %}>&#61;</option>
+        </select>
+        
+        <input class="values" type="text" list="values_{{ i }}" placeholder="A value or a formula" style="width: 250px;"
+           {%- if params['values'][i] in session['formulas']['labels'] -%}
+           value="{{ session['formulas']['labels'][params['values'][i]] }}"
+           {%- else -%}
+           value="{{ params['values'][i] }}"
+           {%- endif -%}
+        />
+        <datalist id="values_{{ i }}">
+          {% for period in time_periods %}
+            <option data-value="{{ period }}">{{ period }}</option>
+          {% endfor %}
+          {% for item in all_criteria | sort %}
+            <option data-value="{{ item }}">{{ session['formulas']['labels'][item] }}</option>
+          {% endfor %}
+        </datalist> 
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="span6">
+    <h4>Displayed Columns</h4>
+    <h5>Ticker & Company</h5>
+    {% for col in params['displayed'] %}
+    <div class="displayed_columns">
+      <p>
+        <select class="displayed" style="width: 250px;">
+        <option value="sector"{% if col=='sector' %} selected="selected"{% endif %}>Sector</option>
+        <option value="industry"{% if col=='industry' %} selected="selected"{% endif %}>Industry</option>
+        {% for group in ['formulas', 'quotes', 'multiples', 'ratios', 'margins'] %}
+          <optgroup label="{{ group | title }}">
+          {% for item in all_criteria | sort %}
+            {% if item in session['formulas'][group] %}
+            <option value="{{ item }}"{% if item==col %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+        </select>
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div class="row-fluid">
+  <div class="span6">
+    &nbsp;&nbsp;<div class="fa fa-filter fa-lg"> Add Filter</div>
+  </div>
+  <div class="span6">
+    <div class="fa fa-plus-circle fa-lg"> Add Column</div>
+  </div>
+</div>
+{% endblock %}
+{% block additionalTicker %}{% endblock %}
+ 
+{% block content %}
+<div class="row-fluid" style="margin-bottom: 15px;">
+  <button id="show_criteria" class="btn btn-large btn-block btn-primary" type="button">Show Criteria</button>
+</div>
+
+{% if response['_results_'] == [] %}
+<h4>No Results</h4>
+{% else %}
+<span id="screen_name" class="form-horizontal">
+	<input list="saved_screens" type="text" class="input-large" placeholder="Default Screen" style="margin-right:10px;"/>
+	<button class="btn btn-inverse" type="button" style="margin-right:10px;">Save Screen</button>
+	<button id="run" class="btn btn-primary" type="button">Run</button>
+	<datalist id="saved_screens">
+     {% for screen in session['screens'] %}
+     <option>{{ screen['id'] }}</option>
+     {% endfor %}
+  </datalist> 
+</span>
+
+<table id="datagrid_detail" class="table table-hover">
+  <thead>
+   <tr>
+     <th class="company_info">Company</th>
+     {% for column in params['displayed'] %}
+       {% if column not in ['cik', 'ticker', 'name'] %}
+         {% if column in ['sector', 'industry'] %}
+         <th>
+           {{ column | title }}
+         </th>
+         {% else %}
+         <th>
+           {{ session['formulas']['labels'][column] }}
+         </th>
+         {% endif %}
+       {% endif %}
+     {% endfor %}
+   </tr>
+ </thead>
+ <tbody>
+ {% for result in response['_results_'] %}
+   <tr>
+     <td class="company_info">
+       <a href="/financials/{{ result['cik']['value'] }}">
+         <small>{{ result['ticker']['value'] }}</small><br>
+         {{ result['name']['value'] | truncator(25)|safe }}
+       </a>
+     </td>
+     {% for column in params['displayed'] %}
+       {% if column not in ['cik', 'ticker', 'name'] %}
+         <td>
+           {% if 'formatted' in result[column] %}
+             {{ result[column]['formatted'] | format_blanks }}
+           {% else %}
+             {{ result[column]['value'] | format_blanks }}
+           {% endif %}
+         </td>
+       {% endif %}
+     {% endfor %}
+   </tr>
+ {% endfor %}  
+ </tbody>
+</table>
+{% endif %}
+{% endblock %}

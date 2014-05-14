@@ -33,18 +33,7 @@ def make_user_request(endpoint, data=None):
 @app.route('/logout/')
 def logout():
     """Logout the user and return them to /filings/"""
-    if 'user_oauth_token' in session:
-        del session['user_oauth_token']
-    if 'user_oauth_state' in session:
-        del session['user_oauth_state']
-    if 'watchlist' in session:
-        del session['watchlist']
-    if 'watchlist_ciks' in session:
-        del session['watchlist_ciks']
-    if 'funds' in session:
-        del session['funds']
-    if 'funds_ciks' in session:
-        del session['funds_ciks']
+    session.clear()
     return redirect(url_for('filings'))
 
 
@@ -122,7 +111,8 @@ def get_watchlist():
     in the session"""
     try:
         """ if the user deletes an item then quickly refreshes the page it
-        messes up the token stuff and results in a KeyError"""
+        messes up the token stuff and results in a KeyError; thus,
+        the try/except"""
         response = make_user_request('/user/detail/')
         results = response.json()
 
@@ -138,6 +128,8 @@ def get_watchlist():
                 session['watchlist'] = watchlist
                 session['watchlist_ciks'] = [x['cik'] for x in
                                              session['watchlist']]
+            if 'screens' in results['_results_']:
+                session['screens'] = results['_results_']['screens']
 
     except KeyError:
         pass

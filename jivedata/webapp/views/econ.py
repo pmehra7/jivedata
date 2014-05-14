@@ -74,7 +74,7 @@ def generate_econ_template():
 @app.route('/econ/<series>/')
 def econ_detail(series):
     """Get the history of an economic series."""
-    params = {'reverse': 'true', 'length': -100}
+    params = {'reverse': 'true', 'length': -500}
     series = series.upper()
 
     if app.config['test_data'] == True:

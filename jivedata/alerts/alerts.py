@@ -194,7 +194,7 @@ class Alerts(Client):
         alert['ticker'] = filing['ticker']
 
         """Create the tweet"""
-        if filing['ticker'] != None:
+        if filing['ticker'] != None and abs(net_value) > 0:
             tweet = '$' + filing['ticker'] + ': '
             alert['tweet'] = [tweet + alert['subject']]
         self.raw_alerts.append(alert)
@@ -225,8 +225,9 @@ class Alerts(Client):
         alert['text'].append('Positions: ' + positions + ' (%s)' % aum)
 
         """Create the tweet"""
-        alert['tweet'] = [alert['subject']]
-        alert['tweet'].append(positions + ' positions ' + '(' + aum + ')')
+        if float(filing['aum']) > 100000 and filing['amendment'] == 'O':
+            alert['tweet'] = [alert['subject']]
+            alert['tweet'].append(positions + ' positions ' + '(' + aum + ')')
         self.raw_alerts.append(alert)
 
     def create_twitter_alerts(self):

@@ -34,7 +34,6 @@ class Client(object):
 
     def get_protected(self, endpoint, params={}):
         self.get_token()
-        params['pretty'] = 'true'
         headers = {'Authorization': 'Bearer %s' % self.token['access_token']}
         r = requests.get(self.api_base + endpoint, params=params,
                          headers=headers, verify=False, timeout=60)

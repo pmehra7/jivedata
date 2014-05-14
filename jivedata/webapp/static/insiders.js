@@ -3,8 +3,6 @@ var next;
 
 $(document).ready(function(){ 
 	$("#options_row").show();
-	$('#collapseOne').collapse('show');
-	    
 	current = $("#current").text();
 	next = $("#next").text();
 	$(window).bind('scroll',loadOnScroll);

@@ -1,0 +1,31 @@
+@media (max-width: 480px){
+	table{
+	  zoom: .80;
+	}
+}
+
+#datagrid_detail tr > td:not(.company_info), #datagrid_detail tr > th:not(.company_info){
+  text-align: right;
+}
+
+#datagrid_detail > tbody> tr > td > a{
+  color: #333;
+  text-decoration: none;
+}
+#datagrid_detail > tbody> tr > td > a > small{
+  color: #5586E0;
+}
+
+.toolbar{
+  float: left;
+}
+
+.fa,.remove{
+  cursor: pointer;
+}
+
+.remove{
+	color: red;
+	font-size: 16px;
+	
+}

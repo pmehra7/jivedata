@@ -14,7 +14,6 @@
   <link rel="canonical" href="https://www.jivedata.com/filings/{{ session['ticker']['cik'] }}/">
   {% endif %}
 {%- endblock %}
-
  
 {% block jquery %}
 <script src="{{ url_for('static', filename='base/ticker.js') }}" type="text/javascript"></script>
@@ -57,26 +56,26 @@ td > a > i.fa{ padding-right:15px;}
 </div>
 {% endblock %}
  
- {% block content %}
- {% if results == [] %}
- <h4>No Results</h4>
- {% else %}
- <table id="datagrid" class="table table-hover">
-   <thead>
-    <tr>
-      <th>Company</th>
-      <th>Form</th>
-      <th>Date Filed (EST)</th>
-      <th>Links</th>
-    </tr>
-  </thead>
-  <tbody>
-  {{ html }}
-  {% if pagination['next']  ==  None  %}
-  <tr style="height:50px;border-bottom:0px;"><td colspan="4" style="text-align:center">No More Records</td></tr>
-  {% endif %}
-  </tbody>
-	</table>
+{% block content %}
+{% if results == [] %}
+<h4>No Results</h4>
+{% else %}
+<table id="datagrid" class="table table-hover">
+  <thead>
+   <tr>
+     <th>Company</th>
+     <th>Form</th>
+     <th>Date Filed (EST)</th>
+     <th>Links</th>
+   </tr>
+ </thead>
+ <tbody>
+ {{ html }}
+ {% if pagination['next']  ==  None  %}
+ <tr style="height:50px;border-bottom:0px;"><td colspan="4" style="text-align:center">No More Records</td></tr>
+ {% endif %}
+ </tbody>
+</table>
 {% endif %}
 <div id="current" style="display:none;">{{ pagination['current'] }}</div>
 <div id="next" style="display:none;">{{ pagination['next'] }}</div>
