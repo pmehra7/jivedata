@@ -53,10 +53,11 @@ def update_screen():
 def default_screen():
     screen = {}
     screen['id'] = ''
-    screen['formulas'] = ('cev_to_adj_ebitda,cev_to_adj_ebitda,'
-                          'price_to_earnings,price_to_earnings')
-    screen['operators'] = 'ge,le,ge,le'
-    screen['values'] = '0,7,0,10'
+    screen['formulas'] = ('market_capitalization,cev_to_adj_ebitda,'
+                          'cev_to_adj_ebitda,price_to_earnings,'
+                          'price_to_earnings')
+    screen['operators'] = 'ge,ge,le,ge,le'
+    screen['values'] = '50000000,0,7,0,10'
     screen['displayed'] = ('market_capitalization,cev,cev_to_adj_ebitda,'
                             'price_to_earnings')
     return screen
