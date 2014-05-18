@@ -81,14 +81,14 @@ def get_params():
 def screen_view():
     """Screener, including pre-built & custom screens"""
     groups = ['formulas', 'margins', 'ratios', 'multiples', 'quotes']
-    if 'formulas' not in session or 'sorted_formulas' not in session:
-        f = make_api_request('/financials/formulas/')
-        session['formulas'] = f['_results_']
-        session['sorted_formulas'] = []
-        for k, v in session['formulas'].iteritems():
-            if k in groups:
-                session['sorted_formulas'] += v
-        session['sorted_formulas'] = sorted(session['sorted_formulas'])
+
+    f = make_api_request('/financials/formulas/')
+    formulas = f['_results_']
+    sorted_formulas = []
+    for k, v in formulas.iteritems():
+        if k in groups:
+            sorted_formulas += v
+    sorted_formulas = sorted(sorted_formulas)
 
     params = get_params()
     response = make_api_request('/screen/detail/', params)
@@ -98,4 +98,5 @@ def screen_view():
         flash('Login to save screens', 'info')
 
     return render_template('screener.jinja2', response=response,
-                           params=params, groups=groups)
+                           params=params, groups=groups, formulas=formulas,
+                           sorted_formulas=sorted_formulas)

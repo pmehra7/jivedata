@@ -26,8 +26,8 @@ Stock Screener
           {% endfor %}
           {% for group in groups %}
             <optgroup label="{{ group | title }}">
-            {% for item in session['formulas'][group] %}
-              <option value="{{ item }}"{% if formula == item %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
+            {% for item in formulas[group] %}
+              <option value="{{ item }}"{% if formula == item %} selected="selected"{% endif %}>{{ formulas['labels'][item] }}</option>
             {% endfor %}
           {% endfor %}
         </select>
@@ -41,7 +41,7 @@ Stock Screener
         </select>
         
         <input class="values" type="text" list="values_{{ i }}" placeholder="A value or a formula" style="width: 250px;"
-           {%- if params['values'][i] in session['formulas']['labels'] -%} value="{{ session['formulas']['labels'][params['values'][i]] }}"
+           {%- if params['values'][i] in formulas['labels'] -%} value="{{ formulas['labels'][params['values'][i]] }}"
            {%- else -%}
              {% if params['formulas'][i] not in params['values'][i] %} value="{{ params['values'][i] }}"
              {% else %}
@@ -55,8 +55,8 @@ Stock Screener
           {% for item in ['1 Quarter Ago', '1 Year Ago', '5 Years Ago'] %}
             <option data-value="{{ item }}">{{ item }}</option>
           {% endfor %}
-          {% for item in session['sorted_formulas'] %}
-            <option data-value="{{ item }}">{{ session['formulas']['labels'][item] }}</option>
+          {% for item in sorted_formulas %}
+            <option data-value="{{ item }}">{{ formulas['labels'][item] }}</option>
           {% endfor %}
         </datalist> 
       </p>
@@ -74,8 +74,8 @@ Stock Screener
         <option value="industry"{% if col == 'industry' %} selected="selected"{% endif %}>Industry</option>
         {% for group in groups %}
           <optgroup label="{{ group | title }}">
-          {% for item in session['formulas'][group] %}
-            <option value="{{ item }}"{% if item == col %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
+          {% for item in formulas[group] %}
+            <option value="{{ item }}"{% if item == col %} selected="selected"{% endif %}>{{ formulas['labels'][item] }}</option>
           {% endfor %}
         {% endfor %}
         </select>
@@ -144,7 +144,7 @@ Stock Screener
          </th>
          {% else %}
          <th>
-           {{ session['formulas']['labels'][column] }}
+           {{ formulas['labels'][column] }}
          </th>
          {% endif %}
        {% endif %}
