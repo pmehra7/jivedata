@@ -121,19 +121,16 @@ Stock Screener
 <h4>No Results</h4>
 {% else %}
   <span id="saved_screens">
-	{% if session['screens'] | length == 0 %}
-		{% if 'user_oauth_token' not in session or 'access_token' not in session['user_oauth_token'] %}
-		<strong>&nbsp;&nbsp;Login to run saved screens</strong>
-		{% endif %}
-	{% else %}
+	{% if session['screens'] | length != 0 %}
 	  <select>
 		   <option selected="selected"></option>
 		   {% for screen in session['screens'] %}
 	     <option {% if session['screen']['id'] == screen['id'] %}selected="selected"{% endif %}>{{ screen['id'] }}</option>
 	     {% endfor %}
 	  </select>
-{% endif %}
-    <br><small>&nbsp;&nbsp;In Thousands (USD)</small>
+	  <br>
+  {% endif %}
+    <small>&nbsp;&nbsp;In Thousands (USD)</small>
   </span>
 <table id="datagrid_detail" class="table table-hover">
   <thead>

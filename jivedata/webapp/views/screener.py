@@ -27,7 +27,7 @@ def update_screen():
             screen[key] = ','.join(values)
 
     if save == 'reset':
-        del session['screen']
+        session['screen'] = default_screen()
     elif save == False:  # run a pre-saved screen
         try:
             session['screen'] = [x for x in session['screens'] if
