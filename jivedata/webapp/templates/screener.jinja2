@@ -110,13 +110,14 @@ Stock Screener
   </div>
 {% endif %}
 </div>
+
+<div class="row-fluid" style="margin-bottom: 15px;">
+  <button id="show_criteria" class="btn btn-large btn-block btn-primary" type="button">Hide Criteria</button>
+</div>
 {% endblock %}
 {% block additionalTicker %}{% endblock %}
  
 {% block content %}
-<div class="row-fluid" style="margin-bottom: 15px;">
-  <button id="show_criteria" class="btn btn-large btn-block btn-primary" type="button">Hide Criteria</button>
-</div>
 {% if response['_results_'] == [] %}
 <h4>No Results</h4>
 {% else %}
