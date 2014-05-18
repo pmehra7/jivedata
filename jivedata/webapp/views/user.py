@@ -75,7 +75,7 @@ def authorized():
 
 @app.route('/me/')
 def user_details():
-    """Display the user's watchlist and funds list"""
+    """Display the user's watchlist, funds list, & saved screens"""
     if 'user_oauth_token' not in session or \
         'refresh_token' not in session['user_oauth_token']:
         return redirect('/login/')
@@ -97,11 +97,13 @@ def update():
             params['cik'] = int(session['ticker']['cik'])
         elif params['item'] == 'funds':
             params['cik'] = int(session['fund']['cik'])
+    return make_update_request(params)
 
+
+def make_update_request(params):
     response = make_user_request('/user/update/', data=params)
     if response is None or '_error_' in response.text:
         return jsonify(_message_=response.text)
-
     get_watchlist()
     return jsonify(_message_='Success')
 

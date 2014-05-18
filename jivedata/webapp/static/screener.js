@@ -2,6 +2,9 @@ var formulas = [];
 var operators = [];
 var values = [];
 var displayed = [];
+var exists = false;
+var blank = false;
+var screen_name;
 
 $(document).ready(function(){
 	$("#options_row").show();
@@ -15,7 +18,11 @@ $(document).ready(function(){
 		}
 	});
 	
-	$('#screen_name').appendTo('div.toolbar');
+	$('.values').each(function(){
+		commafy(this);		
+	});
+	
+	$('#saved_screens').appendTo('div.toolbar');
 	
 	$('#show_criteria').click(function(){
 	  $('#options_row').toggle('slow', function(){
@@ -25,59 +32,85 @@ $(document).ready(function(){
 	    }
 	  });
 	});
-	
-	$('#save').click(function(){
-		save();
-	});
-	$('#run').click(function(){
-		save();
-	});
-	
 	add_arrows();
 });
 
+function commafy(that){
+	var no_commas = $(that).val().replace(/,/g, '');
+	var is_integer = /^\d+$/;
+	if(is_integer.test(no_commas)){
+		// add commas to integers to make them easier to read
+		var parts = no_commas.toString().split('.');
+	    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+		$(that).val(parts.join('.'));
+	}
+}
 
-$("#saved_screens").bind('input', function(){
-    alert('hi');
+$('.values').on('input', function(){
+	commafy(this);
 });
 
-
-
-var save = function(){
-	$('.formulas :selected').each(function(){
-		formula = $(this).attr('value');
-		formulas.push(formula);
-	});
-	$('.operators :selected').each(function(){
-		operator = $(this).attr('value');
-		operators.push(operator);
-	});
+var name_exists = function(){
+	var name_input = $('#name_input');
+	screen_name = name_input.val();
+	$(name_input).parent('div').removeClass('control-group error');
+	$('#save').prop('disabled', false);
 	
-	$('.values').each(function(){
-		var val = $(this).val();
-		var datalist_id = $(this).attr('list');
-	    var datalist_value = $('#' + datalist_id + ' option').filter(function(){
-	    	var data = $(this).attr('data-value');
-	    	return val == data;
-	    }).data('value');
-	    
-	    if(datalist_value==null){
-	      values.push(val);
-	    }
-	    else{
-	      values.push(datalist_value);
-	    }
+	if(screen_name==''){
+		$(name_input).parent('div').addClass('control-group error');
+		$('#save').prop('disabled', true);
+		blank = true;
+		return false;
+	}
+	
+	$('#saved_screens > select option').each(function(){
+		if(this.value===screen_name){
+			exists = true;
+			return false;
+		}
 	});
-	
-	$('.displayed :selected').each(function(){
-		displayed.push($(this).attr('value'));
-	});
-	
-	d = JSON.stringify({'formulas': formulas, 'operators': operators,
-						'values': values, 'displayed': displayed});
-	
-	update_settings({'screener': d}, base_path);	
 }
+
+$('#name_input').on('input', function(){
+	exists = name_exists();
+});
+
+$('#save').click(function(){
+	name_exists();
+	if(exists === true){
+		$('#confirm').modal();
+		return false;
+	}
+	if(blank === true){
+		return false;
+	}
+	$(this).prop('disabled', true);
+	run_screen(true, screen_name);
+});
+
+$('#overwrite').click(function(){
+	$(this).prop('disabled', true);
+	$(this).siblings('button').prop('disabled', true);
+	run_screen(true, screen_name);
+});
+
+$(document).on('change', '#saved_screens > select', function(){
+	if($(this).prop('selectedIndex') == 0){
+		// give them back the default screen
+		run_screen('reset', '');
+	}else{
+		run_screen(false, $(this).find('option:selected').val());
+	}
+});
+
+$('#reset').click(function(){
+	// if they aren't logged in, give them a way to reset the screen
+	run_screen('reset', '');
+});
+
+$('#run').click(function(){
+    run_screen(false, '');
+});
 
 $(document).on('click', '.fa-filter', function(){
 	last_criteria = $('.criteria:last');
@@ -125,7 +158,55 @@ var add_arrows = function(){
 	if($('.displayed_columns').length > 1){
 		$('.displayed_columns > p').append(remove);
 	}
-		
+}
+
+var run_screen = function(save, id){
+	formulas = [];
+	operators = [];
+	values = [];
+	displayed = [];
+	
+	$('.formulas :selected').each(function(){
+		formula = $(this).attr('value');
+		formulas.push(formula);
+	});
+	$('.operators :selected').each(function(){
+		operator = $(this).attr('value');
+		operators.push(operator);
+	});
+	
+	$('.values').each(function(){
+		var val = $(this).val();
+		var datalist_id = $(this).attr('list');
+	    var datalist_value = $('#' + datalist_id + ' option').filter(function(){
+	    	var data = $(this).val();
+	    	return val == data;
+	    }).data('value');
+	    
+	    if(datalist_value==null){
+	    	// means it is user input...remove the commas
+	    	var no_commas = val.replace(/,/g, '');
+	    	var is_integer = /^\d+$/;
+	    	if(is_integer.test(no_commas)){
+	    		values.push(no_commas);
+	    	}else{
+	    		values.push(val);
+	    	}
+	    }
+	    else{
+	      values.push(datalist_value);
+	    }
+	});
+	
+	$('.displayed :selected').each(function(){
+		displayed.push($(this).attr('value'));
+	});
+	
+	d = {'save': save, 'id': id, 'formulas': formulas, 'operators': operators,
+		 'values': values, 'displayed': displayed};
+	
+	d = JSON.stringify(d);
+	update_settings({'screener': d}, base_path);	
 }
 
 

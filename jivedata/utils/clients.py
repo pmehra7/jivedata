@@ -1,4 +1,5 @@
 import requests
+from flask import flash
 
 
 class Client(object):
@@ -40,5 +41,7 @@ class Client(object):
         self.text = r.text
         try:
             self.results = r.json()
+            if '_error_' in self.results:
+                flash(self.results['_error_'], 'danger')
         except:
             raise Exception(self.text)

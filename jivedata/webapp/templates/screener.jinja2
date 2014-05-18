@@ -13,9 +13,6 @@ Stock Screener
 {% endblock %}
 
 {% block ticker %}
-{% set operators = {'lt': '&lt;', 'le': '&le;', 'gt': '&gt;', 'ge': '&ge;', 'eq': '&#61;'} %}
-{% set time_periods = ['1 Quarter Ago', '1 Year Ago', '5 Years Ago'] %}
-{% set all_criteria = session['available_criteria']['ltm'] + session['available_criteria']['mrq'] %}
 <div class="row-fluid">
   <div class="span6">
     <h4>Criteria</h4>
@@ -24,36 +21,41 @@ Stock Screener
     <div class="criteria">
       <p>
         <select class="formulas" style="width: 250px;">
-          {% for group in ['formulas', 'quotes', 'multiples', 'ratios', 'margins'] %}
+          {% for item in ['industry', 'sector'] %}
+          <option value="{{ item }}"{% if formula==item %} selected="selected"{% endif %}>{{ item | title }}</option>
+          {% endfor %}
+          {% for group in groups %}
             <optgroup label="{{ group | title }}">
-            {% for item in all_criteria | sort %}
-              {% if item in session['formulas'][group] %}
-              <option value="{{ item }}"{% if item==formula %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
-              {% endif %}
+            {% for item in session['formulas'][group] %}
+              <option value="{{ item }}"{% if formula == item %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
             {% endfor %}
           {% endfor %}
         </select>
         
         <select class="operators" style="width: 60px;">
-          <option value="lt" {% if params['operators'][i] == 'lt' %} selected="selected"{% endif %}>&lt;</option>
-          <option value="le" {% if params['operators'][i] == 'le' %} selected="selected"{% endif %}>&le;</option>
-          <option value="gt" {% if params['operators'][i] == 'gt' %} selected="selected"{% endif %}>&gt;</option>
-          <option value="ge" {% if params['operators'][i] == 'ge' %} selected="selected"{% endif %}>&ge;</option>
-          <option value="eq" {% if params['operators'][i] == 'eq' %} selected="selected"{% endif %}>&#61;</option>
+          <option value="lt"{% if params['operators'][i] == 'lt' %} selected="selected"{% endif %}>&lt;</option>
+          <option value="le"{% if params['operators'][i] == 'le' %} selected="selected"{% endif %}>&le;</option>
+          <option value="gt"{% if params['operators'][i] == 'gt' %} selected="selected"{% endif %}>&gt;</option>
+          <option value="ge"{% if params['operators'][i] == 'ge' %} selected="selected"{% endif %}>&ge;</option>
+          <option value="eq"{% if params['operators'][i] == 'eq' %} selected="selected"{% endif %}>&#61;</option>
         </select>
         
         <input class="values" type="text" list="values_{{ i }}" placeholder="A value or a formula" style="width: 250px;"
-           {%- if params['values'][i] in session['formulas']['labels'] -%}
-           value="{{ session['formulas']['labels'][params['values'][i]] }}"
+           {%- if params['values'][i] in session['formulas']['labels'] -%} value="{{ session['formulas']['labels'][params['values'][i]] }}"
            {%- else -%}
-           value="{{ params['values'][i] }}"
-           {%- endif -%}
-        />
+             {% if params['formulas'][i] not in params['values'][i] %} value="{{ params['values'][i] }}"
+             {% else %}
+	             {%- if 'one_quarter_ago' in params['values'][i] -%} value="1 Quarter Ago"
+	             {%- elif 'one_year_ago' in params['values'][i] -%} value="1 Year Ago"
+	             {%- elif 'five_years_ago' in params['values'][i] -%} value="5 Years Ago"
+	             {% endif %}
+	           {% endif %}
+           {%- endif -%}/>
         <datalist id="values_{{ i }}">
-          {% for period in time_periods %}
-            <option data-value="{{ period }}">{{ period }}</option>
+          {% for item in ['1 Quarter Ago', '1 Year Ago', '5 Years Ago'] %}
+            <option data-value="{{ item }}">{{ item }}</option>
           {% endfor %}
-          {% for item in all_criteria | sort %}
+          {% for item in session['sorted_formulas'] %}
             <option data-value="{{ item }}">{{ session['formulas']['labels'][item] }}</option>
           {% endfor %}
         </datalist> 
@@ -68,14 +70,12 @@ Stock Screener
     <div class="displayed_columns">
       <p>
         <select class="displayed" style="width: 250px;">
-        <option value="sector"{% if col=='sector' %} selected="selected"{% endif %}>Sector</option>
-        <option value="industry"{% if col=='industry' %} selected="selected"{% endif %}>Industry</option>
-        {% for group in ['formulas', 'quotes', 'multiples', 'ratios', 'margins'] %}
+        <option value="sector"{% if col == 'sector' %} selected="selected"{% endif %}>Sector</option>
+        <option value="industry"{% if col == 'industry' %} selected="selected"{% endif %}>Industry</option>
+        {% for group in groups %}
           <optgroup label="{{ group | title }}">
-          {% for item in all_criteria | sort %}
-            {% if item in session['formulas'][group] %}
-            <option value="{{ item }}"{% if item==col %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
-            {% endif %}
+          {% for item in session['formulas'][group] %}
+            <option value="{{ item }}"{% if item == col %} selected="selected"{% endif %}>{{ session['formulas']['labels'][item] }}</option>
           {% endfor %}
         {% endfor %}
         </select>
@@ -84,6 +84,7 @@ Stock Screener
     {% endfor %}
   </div>
 </div>
+
 <div class="row-fluid">
   <div class="span6">
     &nbsp;&nbsp;<div class="fa fa-filter fa-lg"> Add Filter</div>
@@ -92,28 +93,48 @@ Stock Screener
     <div class="fa fa-plus-circle fa-lg"> Add Column</div>
   </div>
 </div>
+
+<div class="row-fluid">
+{% if 'user_oauth_token' in session and 'access_token' in session['user_oauth_token'] %}
+  <div class="form-horizontal">
+  <input id="name_input" type="text" class="input-large"
+    {%- if 'screen' in session -%}value="{{ session['screen']['id'] }}"{%- endif -%}
+  />
+  <button id="save" class="btn btn-inverse" type="button">Save Screen</button>
+  <button id="run" class="btn btn-primary" type="button">Run</button>
+  </div>
+{% else %}
+  <div class="form-horizontal">
+   <button id="reset" class="btn btn-inverse" type="button">Reset Screen</button>
+   <button id="run" class="btn btn-primary" type="button">Run</button>
+  </div>
+{% endif %}
+</div>
 {% endblock %}
 {% block additionalTicker %}{% endblock %}
  
 {% block content %}
 <div class="row-fluid" style="margin-bottom: 15px;">
-  <button id="show_criteria" class="btn btn-large btn-block btn-primary" type="button">Show Criteria</button>
+  <button id="show_criteria" class="btn btn-large btn-block btn-primary" type="button">Hide Criteria</button>
 </div>
-
 {% if response['_results_'] == [] %}
 <h4>No Results</h4>
 {% else %}
-<span id="screen_name" class="form-horizontal">
-	<input list="saved_screens" type="text" class="input-large" placeholder="Default Screen" style="margin-right:10px;"/>
-	<button class="btn btn-inverse" type="button" style="margin-right:10px;">Save Screen</button>
-	<button id="run" class="btn btn-primary" type="button">Run</button>
-	<datalist id="saved_screens">
-     {% for screen in session['screens'] %}
-     <option>{{ screen['id'] }}</option>
-     {% endfor %}
-  </datalist> 
-</span>
-
+  <span id="saved_screens">
+	{% if session['screens'] | length == 0 %}
+		{% if 'user_oauth_token' not in session or 'access_token' not in session['user_oauth_token'] %}
+		<strong>&nbsp;&nbsp;Login to run saved screens</strong>
+		{% endif %}
+	{% else %}
+	  <select>
+		   <option selected="selected"></option>
+		   {% for screen in session['screens'] %}
+	     <option {% if session['screen']['id'] == screen['id'] %}selected="selected"{% endif %}>{{ screen['id'] }}</option>
+	     {% endfor %}
+	  </select>
+{% endif %}
+    <br><small>&nbsp;&nbsp;In Thousands (USD)</small>
+  </span>
 <table id="datagrid_detail" class="table table-hover">
   <thead>
    <tr>
@@ -139,7 +160,7 @@ Stock Screener
      <td class="company_info">
        <a href="/financials/{{ result['cik']['value'] }}">
          <small>{{ result['ticker']['value'] }}</small><br>
-         {{ result['name']['value'] | truncator(25)|safe }}
+         {{ result['name']['value'] | truncator(25) | safe }}
        </a>
      </td>
      {% for column in params['displayed'] %}
@@ -158,4 +179,19 @@ Stock Screener
  </tbody>
 </table>
 {% endif %}
+
+<!-- Modal -->
+<div id="confirm" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="modal_header" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="modal_header">Confirm</h3>
+  </div>
+  <div class="modal-body">
+    <p>Are you sure you want to overwrite your existing screen?</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+    <button id="overwrite" class="btn btn-primary">Yes</button>
+  </div>
+</div>
 {% endblock %}

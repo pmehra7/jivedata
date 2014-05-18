@@ -118,8 +118,8 @@ def update_settings():
 
         # screener settings
         if 'screener' in request.args:
-            from screener import save_screen
-            save_screen()
+            from screener import update_screen
+            update_screen()
 
         return jsonify(result='success')
     return jsonify(error='Could not update...')

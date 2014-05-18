@@ -39,7 +39,7 @@ function update_settings(updated_data, url){ // update our session variables
     .done(function(data){ 
         if(url != false){
     	    if(data.result){
-    		    location.href = url;
+    		  location.href = url;
     		}
     	}
 	});		  
@@ -57,6 +57,6 @@ function update_user(updated_data){ // update a user's watchlist, funds, or scre
         dataType: 'json'
 	})
 	.done(function(data){ 
-	    //location.reload();
+	    location.reload();
 	});		  
 }

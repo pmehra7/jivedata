@@ -291,19 +291,16 @@ def institutional_detail_template():
       {% for item in master %}
       <tr>
         <td style="text-align:left;" data-order="{{ item['name']  }}">
-          {% if 'putcall' in item -%}
-            <small>{{ item['putcall'] }}</small><br>
-          {%- endif %}
-          {% if 'type' in item and item['type'] == 'PRN' -%}
-            <small>Bond</small><br>
-          {%- endif %}
-          {% if 'class' in item and item['class'] | upper != 'COM' -%}
-            <small>{{ item['class'] }}</small><br>
-          {%- endif %}
-          {% if 'type' in item and item['type'] == 'SH' and
-              'ticker' in item and item['ticker'] != '' -%}
+          {% if 'ticker' in item and item['ticker'] != '' -%}
             <small>{{ item['ticker'] }}</small>
             <br>
+          {%- endif %}
+          {% if 'putcall' in item -%}
+            <small>{{ item['putcall'] | upper }}</small><br>
+          {% elif 'type' in item and item['type'] == 'PRN' -%}
+            <small>Bond</small><br>
+          {% elif 'class' in item and item['class'] | upper != 'COM' -%}
+            <small>{{ item['class'] }}</small><br>
           {%- endif %}
           {{ item['name'] }}
         </td>
