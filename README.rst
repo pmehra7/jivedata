@@ -1,3 +1,6 @@
+This repository is a bit out of date. We have opened up our API and OAuth2 is no longer required.
+Docs are at https://api.jivedata.com. Please contact us if you have any issues.
+
 JiveData
 ==============
 
